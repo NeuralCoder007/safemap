@@ -223,7 +223,7 @@ export function PostVibeTab() {
       <div className="max-w-2xl mx-auto space-y-6">
         <h1 className="text-foreground font-semibold text-2xl">Drop the tea on a spot ☕</h1>
         <p className="text-sm text-gray-600">
-          Search by keywords — cafés, stations, neighborhoods, or street names. You don&apos;t need the full address.
+          Search cafés, stations, streets… anywhere!
         </p>
 
         <div className="relative">
