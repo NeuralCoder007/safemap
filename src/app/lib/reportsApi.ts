@@ -1,5 +1,6 @@
 import type { VibeReport } from '../data/vibeReport';
 import type { PlaceType, Vibe, VibeTag } from '../data/types';
+import { friendlyLoadError, friendlySaveError } from './userFacing';
 
 export type ListFilters = {
   category?: string;
@@ -22,7 +23,7 @@ export async function fetchReports(filters: ListFilters): Promise<VibeReport[]> 
   const res = await fetch(`/api/reports?${qs.toString()}`);
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || res.statusText);
+    throw new Error(friendlyLoadError(text || res.statusText));
   }
   const rows = (await res.json()) as VibeReport[];
   return rows.map((r) => ({
@@ -54,7 +55,7 @@ export async function createReport(body: CreateReportBody): Promise<VibeReport> 
     } catch {
       /* use statusText */
     }
-    throw new Error(msg);
+    throw new Error(friendlySaveError(msg));
   }
   const r = (await res.json()) as VibeReport;
   return {

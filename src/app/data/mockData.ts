@@ -22,6 +22,7 @@ export const PLACE_TYPE_INFO: Record<PlaceType, { label: string; emoji: string }
   transit: { label: 'Transit', emoji: '🚇' },
   office: { label: 'Office', emoji: '💼' },
   cafe: { label: 'Café', emoji: '☕' },
+  library: { label: 'Library', emoji: '📚' },
   other: { label: 'Other', emoji: '📍' },
 };
 

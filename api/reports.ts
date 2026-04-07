@@ -13,6 +13,7 @@ const PLACE_TYPES = new Set([
   'transit',
   'office',
   'cafe',
+  'library',
   'other',
 ]);
 

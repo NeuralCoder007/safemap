@@ -135,9 +135,9 @@ export function PostVibeTab() {
         vibe,
         tags: selectedTags,
       });
-      toast.success('Vibe saved to KV — open Explore to see it on the map.');
+      toast.success('Your vibe is saved — switch to Explore to see it on the map.');
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Could not save report');
+      toast.error(e instanceof Error ? e.message : "We couldn't save your vibe. Please try again.");
       return;
     }
     setSearchQuery('');
@@ -155,6 +155,7 @@ export function PostVibeTab() {
     'parking',
     'office',
     'cafe',
+    'library',
     'transit',
     'street',
     'other',
@@ -180,27 +181,37 @@ export function PostVibeTab() {
                 ? ['clean-safe', 'noise', 'theft', 'harassment', 'sketchy-people', 'scam']
               : category === 'transit'
                 ? ['harassment', 'creepy-vibes', 'sketchy-people', 'poor-lighting', 'clean-safe']
-                : category === 'street'
+                : category === 'library'
                   ? [
-                      'unsafe-night',
-                      'poor-lighting',
-                      'creepy-vibes',
-                      'sketchy-people',
-                      'harassment',
                       'clean-safe',
-                    ]
-                  : [
-                      'unsafe-night',
-                      'poor-lighting',
-                      'creepy-vibes',
-                      'clean-safe',
-                      'sketchy-people',
                       'harassment',
-                      'break-in',
-                      'theft',
                       'noise',
-                      'scam',
-                    ];
+                      'poor-lighting',
+                      'theft',
+                      'creepy-vibes',
+                      'sketchy-people',
+                    ]
+                  : category === 'street'
+                    ? [
+                        'unsafe-night',
+                        'poor-lighting',
+                        'creepy-vibes',
+                        'sketchy-people',
+                        'harassment',
+                        'clean-safe',
+                      ]
+                    : [
+                        'unsafe-night',
+                        'poor-lighting',
+                        'creepy-vibes',
+                        'clean-safe',
+                        'sketchy-people',
+                        'harassment',
+                        'break-in',
+                        'theft',
+                        'noise',
+                        'scam',
+                      ];
 
   const listOpen =
     showResults &&
@@ -212,7 +223,7 @@ export function PostVibeTab() {
       <div className="max-w-2xl mx-auto space-y-6">
         <h1 className="text-foreground font-semibold text-2xl">Drop the tea on a spot ☕</h1>
         <p className="text-sm text-gray-600">
-          Search by keywords (café, station, neighborhood) — like Google Maps. Uses Places Autocomplete on the server.
+          Search by keywords — cafés, stations, neighborhoods, or street names. You don&apos;t need the full address.
         </p>
 
         <div className="relative">
@@ -248,7 +259,7 @@ export function PostVibeTab() {
                     className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 text-sm"
                   >
                     <span className="font-medium text-gray-800">{place.name || place.location}</span>
-                    <span className="block text-xs text-gray-500">Demo · uses saved coordinates</span>
+                    <span className="block text-xs text-gray-500">Sample spot · tap to use</span>
                   </button>
                 ))}
                 {predictions.map((p) => (

@@ -178,8 +178,7 @@ export function ExploreTab() {
       </div>
       {loadError && (
         <div className="flex-shrink-0 bg-amber-50 text-amber-900 text-xs px-3 py-2 border-b border-amber-200">
-          {loadError} — use <code className="text-[10px]">vercel dev</code> locally or deploy with KV
-          env vars.
+          {loadError}
         </div>
       )}
       <div className="flex-1 min-h-0 relative">

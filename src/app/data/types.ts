@@ -7,6 +7,7 @@ export type PlaceType =
   | 'transit'
   | 'office'
   | 'cafe'
+  | 'library'
   | 'other';
 
 export type VibeTag =
