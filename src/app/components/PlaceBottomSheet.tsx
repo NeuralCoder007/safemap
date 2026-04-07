@@ -1,5 +1,5 @@
 import { ThumbsUp, X, TrendingUp } from 'lucide-react';
-import { MOCK_PLACES, MOCK_REPORTS, VIBE_TAG_INFO, PLACE_TYPE_INFO } from '../data/mockData';
+import { MOCK_PLACES, MOCK_REPORTS, getVibeTagInfo, PLACE_TYPE_INFO } from '../data/mockData';
 
 interface PlaceBottomSheetProps {
   placeId: string;
@@ -84,7 +84,7 @@ export function PlaceBottomSheet({ placeId, onClose, onAddReport }: PlaceBottomS
             </h3>
             <div className="flex flex-wrap gap-2">
               {place.topTags.map((tag) => {
-                const info = VIBE_TAG_INFO[tag];
+                const info = getVibeTagInfo(tag);
                 return (
                   <span
                     key={tag}
@@ -121,7 +121,7 @@ export function PlaceBottomSheet({ placeId, onClose, onAddReport }: PlaceBottomS
                     <div className="flex items-center justify-between">
                       <div className="flex gap-1.5">
                         {report.tags.slice(0, 3).map((tag) => {
-                          const info = VIBE_TAG_INFO[tag];
+                          const info = getVibeTagInfo(tag);
                           return (
                             <span key={tag} className="text-xs px-2 py-1 bg-white rounded-full">
                               {info.emoji}

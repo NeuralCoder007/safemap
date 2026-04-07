@@ -1,5 +1,6 @@
 import type { VibeReport } from '../data/vibeReport';
 import type { PlaceType, Vibe, VibeTag } from '../data/types';
+import { normalizeReportTags } from '../data/vibeTagUtils';
 import { friendlyLoadError, friendlySaveError } from './userFacing';
 
 export type ListFilters = {
@@ -29,6 +30,7 @@ export async function fetchReports(filters: ListFilters): Promise<VibeReport[]> 
   return rows.map((r) => ({
     ...r,
     category: normalizeCategory(r.category as unknown as string),
+    tags: normalizeReportTags(r.tags as unknown as string[]),
   }));
 }
 
@@ -42,10 +44,14 @@ export type CreateReportBody = {
 };
 
 export async function createReport(body: CreateReportBody): Promise<VibeReport> {
+  const payload = {
+    ...body,
+    tags: normalizeReportTags(body.tags as unknown as string[]),
+  };
   const res = await fetch('/api/reports', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     let msg = res.statusText;
@@ -61,5 +67,6 @@ export async function createReport(body: CreateReportBody): Promise<VibeReport> 
   return {
     ...r,
     category: normalizeCategory(r.category as unknown as string),
+    tags: normalizeReportTags(r.tags as unknown as string[]),
   };
 }

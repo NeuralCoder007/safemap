@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns';
-import { VIBE_TAG_INFO, PLACE_TYPE_INFO } from '../data/mockData';
+import { getVibeTagInfo, PLACE_TYPE_INFO } from '../data/mockData';
 import { usePlaces } from '../context/PlacesContext';
 import type { VibeReport } from '../data/vibeReport';
 import type { VibeTag } from '../data/types';
@@ -65,16 +65,19 @@ export function BentoBottomSheet({ reportId, onClose }: BentoBottomSheetProps) {
             <h3 className="font-semibold text-lg mb-4 text-gray-900">Vibe Tags</h3>
             {tagList.length > 0 ? (
               <div className="grid grid-cols-2 gap-3">
-                {tagList.map((tag) => (
-                  <div
-                    key={tag}
-                    className="bg-gray-50 rounded-xl p-4 text-center"
-                    style={{ boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)' }}
-                  >
-                    <div className="text-2xl mb-1">{VIBE_TAG_INFO[tag].emoji}</div>
-                    <div className="text-sm font-medium text-gray-700">{VIBE_TAG_INFO[tag].label}</div>
-                  </div>
-                ))}
+                {tagList.map((tag) => {
+                  const info = getVibeTagInfo(tag);
+                  return (
+                    <div
+                      key={tag}
+                      className="bg-gray-50 rounded-xl p-4 text-center"
+                      style={{ boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)' }}
+                    >
+                      <div className="text-2xl mb-1">{info.emoji}</div>
+                      <div className="text-sm font-medium text-gray-700">{info.label}</div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <p className="text-gray-500 text-sm">No tags yet. Be the first to report!</p>

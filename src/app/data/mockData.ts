@@ -1,17 +1,6 @@
 import { Place, Report, Vibe, VibeTag, PlaceType } from './types';
 
-export const VIBE_TAG_INFO: Record<VibeTag, { label: string; emoji: string }> = {
-  'break-in': { label: 'Break-ins', emoji: '🚪' },
-  theft: { label: 'Theft', emoji: '👝' },
-  harassment: { label: 'Harassment', emoji: '😰' },
-  noise: { label: 'Noisy', emoji: '🔊' },
-  'unsafe-night': { label: 'Unsafe at Night', emoji: '🌙' },
-  'poor-lighting': { label: 'Poor lighting', emoji: '💡' },
-  scam: { label: 'Scam', emoji: '🚨' },
-  'clean-safe': { label: 'Clean & Safe', emoji: '✨' },
-  'creepy-vibes': { label: 'Creepy', emoji: '👀' },
-  'sketchy-people': { label: 'Sketchy people', emoji: '🤔' },
-};
+export { VIBE_TAG_INFO, getVibeTagInfo, normalizeReportTags } from './vibeTagUtils';
 
 export const PLACE_TYPE_INFO: Record<PlaceType, { label: string; emoji: string }> = {
   parking: { label: 'Parking', emoji: '🅿️' },
@@ -35,7 +24,7 @@ export const MOCK_PLACES: Place[] = [
     type: 'street',
     vibe: 'sketchy',
     vibeScore: 45,
-    topTags: ['unsafe-night', 'creepy-vibes', 'poor-lighting'],
+    topTags: ['unsafe-night', 'suspicious-people', 'poor-lighting'],
     reportCount: 12,
     confidence: 'high',
     lastChecked: '2h ago',
@@ -76,7 +65,7 @@ export const MOCK_PLACES: Place[] = [
     type: 'apartment',
     vibe: 'unsafe',
     vibeScore: 18,
-    topTags: ['unsafe-night', 'harassment', 'sketchy-people'],
+    topTags: ['unsafe-night', 'harassment', 'suspicious-people'],
     reportCount: 31,
     confidence: 'high',
     lastChecked: 'just now',
@@ -115,7 +104,7 @@ export const MOCK_PLACES: Place[] = [
     type: 'transit',
     vibe: 'sketchy',
     vibeScore: 52,
-    topTags: ['creepy-vibes', 'sketchy-people', 'harassment'],
+    topTags: ['suspicious-people', 'harassment'],
     reportCount: 28,
     confidence: 'high',
     lastChecked: '30m ago',
@@ -151,7 +140,7 @@ export const MOCK_REPORTS: Report[] = [
   {
     id: 'r2',
     placeId: '1',
-    tags: ['creepy-vibes', 'sketchy-people'],
+    tags: ['suspicious-people'],
     vibe: 'sketchy',
     isVerified: false,
     author: 'anonymous',
@@ -183,7 +172,7 @@ export const MOCK_REPORTS: Report[] = [
   {
     id: 'r5',
     placeId: '4',
-    tags: ['unsafe-night', 'harassment', 'sketchy-people'],
+    tags: ['unsafe-night', 'harassment', 'suspicious-people'],
     vibe: 'unsafe',
     note: 'Got followed at night, very sketchy',
     isVerified: true,
@@ -194,7 +183,7 @@ export const MOCK_REPORTS: Report[] = [
   {
     id: 'r6',
     placeId: '7',
-    tags: ['creepy-vibes', 'sketchy-people'],
+    tags: ['suspicious-people'],
     vibe: 'sketchy',
     isVerified: false,
     author: 'anonymous',

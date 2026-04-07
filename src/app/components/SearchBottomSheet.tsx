@@ -1,5 +1,5 @@
 import { MapPin, TrendingUp, Plus } from 'lucide-react';
-import { MOCK_PLACES, VIBE_TAG_INFO, PLACE_TYPE_INFO } from '../data/mockData';
+import { MOCK_PLACES, getVibeTagInfo, PLACE_TYPE_INFO } from '../data/mockData';
 
 interface SearchBottomSheetProps {
   placeId: string;
@@ -70,7 +70,7 @@ export function SearchBottomSheet({ placeId, onClose, onViewReports, onReportPla
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {place.topTags.slice(0, 3).map((tag) => {
-                    const info = VIBE_TAG_INFO[tag];
+                    const info = getVibeTagInfo(tag);
                     return (
                       <span
                         key={tag}

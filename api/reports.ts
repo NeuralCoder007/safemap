@@ -19,6 +19,38 @@ const PLACE_TYPES = new Set([
 
 const VIBES = new Set(['unsafe', 'sketchy', 'safe']);
 
+const ALLOWED_TAGS = new Set([
+  'break-in',
+  'theft',
+  'harassment',
+  'noise',
+  'unsafe-night',
+  'poor-lighting',
+  'scam',
+  'clean-safe',
+  'suspicious-people',
+]);
+
+const TAG_ALIASES: Record<string, string> = {
+  'creepy-vibes': 'suspicious-people',
+  'sketchy-people': 'suspicious-people',
+};
+
+/** Map legacy ids to canonical; drop unknown; dedupe */
+function normalizeStoredTags(raw: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const item of raw) {
+    const s = String(item).trim();
+    const mapped = TAG_ALIASES[s] ?? s;
+    if (!ALLOWED_TAGS.has(mapped)) continue;
+    if (seen.has(mapped)) continue;
+    seen.add(mapped);
+    out.push(mapped);
+  }
+  return out;
+}
+
 export type StoredVibeReport = {
   id: string;
   lat: number;
@@ -96,7 +128,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const recency = typeof req.query.recency === 'string' ? req.query.recency : 'all';
       const maxAge = parseRecencyWindow(recency);
       const filtered = filterReports(list, category, maxAge);
-      return res.status(200).json(filtered);
+      const normalized = filtered.map((r) => ({ ...r, tags: normalizeStoredTags(r.tags) }));
+      return res.status(200).json(normalized);
     }
 
     if (req.method === 'POST') {
@@ -128,7 +161,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         lng,
         category,
         vibe,
-        tags,
+        tags: normalizeStoredTags(tags),
         recency: new Date().toISOString(),
         label,
       };

@@ -19,8 +19,7 @@ export type VibeTag =
   | 'poor-lighting'
   | 'scam'
   | 'clean-safe'
-  | 'creepy-vibes'
-  | 'sketchy-people';
+  | 'suspicious-people';
 
 export type Vibe = 'unsafe' | 'sketchy' | 'safe';
 

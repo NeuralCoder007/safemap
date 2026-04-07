@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { PLACE_TYPE_INFO, VIBE_TAG_INFO, MOCK_PLACES } from '../data/mockData';
+import { PLACE_TYPE_INFO, getVibeTagInfo, MOCK_PLACES } from '../data/mockData';
 import { usePlaces } from '../context/PlacesContext';
 import type { PlaceType, VibeTag, Vibe } from '../data/types';
 import {
@@ -170,48 +170,45 @@ export function PostVibeTab() {
     category === 'apartment'
       ? ['break-in', 'noise', 'harassment', 'scam', 'clean-safe']
       : category === 'airbnb'
-        ? ['clean-safe', 'scam', 'theft', 'noise']
+        ? ['clean-safe', 'theft', 'noise', 'scam']
         : category === 'campus'
-          ? ['clean-safe', 'harassment', 'poor-lighting', 'sketchy-people']
+          ? ['clean-safe', 'harassment', 'poor-lighting', 'suspicious-people']
           : category === 'parking'
             ? ['break-in', 'theft', 'poor-lighting', 'clean-safe']
             : category === 'office'
-              ? ['clean-safe', 'theft', 'harassment', 'noise', 'sketchy-people']
+              ? ['clean-safe', 'theft', 'harassment', 'noise', 'suspicious-people']
               : category === 'cafe'
-                ? ['clean-safe', 'noise', 'theft', 'harassment', 'sketchy-people', 'scam']
-              : category === 'transit'
-                ? ['harassment', 'creepy-vibes', 'sketchy-people', 'poor-lighting', 'clean-safe']
-                : category === 'library'
-                  ? [
-                      'clean-safe',
-                      'harassment',
-                      'noise',
-                      'poor-lighting',
-                      'theft',
-                      'creepy-vibes',
-                      'sketchy-people',
-                    ]
-                  : category === 'street'
+                ? ['clean-safe', 'noise', 'theft', 'harassment', 'suspicious-people']
+                : category === 'transit'
+                  ? ['harassment', 'suspicious-people', 'poor-lighting', 'clean-safe']
+                  : category === 'library'
                     ? [
-                        'unsafe-night',
-                        'poor-lighting',
-                        'creepy-vibes',
-                        'sketchy-people',
-                        'harassment',
                         'clean-safe',
-                      ]
-                    : [
-                        'unsafe-night',
-                        'poor-lighting',
-                        'creepy-vibes',
-                        'clean-safe',
-                        'sketchy-people',
                         'harassment',
-                        'break-in',
-                        'theft',
                         'noise',
-                        'scam',
-                      ];
+                        'poor-lighting',
+                        'theft',
+                        'suspicious-people',
+                      ]
+                    : category === 'street'
+                      ? [
+                          'unsafe-night',
+                          'poor-lighting',
+                          'suspicious-people',
+                          'harassment',
+                          'clean-safe',
+                        ]
+                      : [
+                          'unsafe-night',
+                          'poor-lighting',
+                          'suspicious-people',
+                          'clean-safe',
+                          'harassment',
+                          'break-in',
+                          'theft',
+                          'noise',
+                          'scam',
+                        ];
 
   const listOpen =
     showResults &&
@@ -350,7 +347,7 @@ export function PostVibeTab() {
                   }`}
                   style={{ boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)' }}
                 >
-                  {VIBE_TAG_INFO[tag].emoji} {VIBE_TAG_INFO[tag].label}
+                  {getVibeTagInfo(tag).emoji} {getVibeTagInfo(tag).label}
                 </button>
               ))}
             </div>
