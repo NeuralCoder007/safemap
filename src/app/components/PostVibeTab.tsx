@@ -3,7 +3,13 @@ import { toast } from 'sonner';
 import { PLACE_TYPE_INFO, VIBE_TAG_INFO, MOCK_PLACES } from '../data/mockData';
 import { usePlaces } from '../context/PlacesContext';
 import type { PlaceType, VibeTag, Vibe } from '../data/types';
-import { geocodeAddress, type GeocodeHit } from '../lib/maps';
+import {
+  fetchPlacePredictions,
+  geocodeAddress,
+  resolvePlaceById,
+  type GeocodeHit,
+  type PlacePrediction,
+} from '../lib/maps';
 
 const DEBOUNCE_MS = 400;
 
@@ -11,9 +17,9 @@ export function PostVibeTab() {
   const { submitReport } = usePlaces();
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
-  const [geocodeHits, setGeocodeHits] = useState<GeocodeHit[]>([]);
+  const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
   const [selectedHit, setSelectedHit] = useState<GeocodeHit | null>(null);
-  const [geocodeLoading, setGeocodeLoading] = useState(false);
+  const [placesLoading, setPlacesLoading] = useState(false);
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
   const [category, setCategory] = useState<PlaceType | null>(null);
   const [vibe, setVibe] = useState<Vibe | null>(null);
@@ -29,24 +35,34 @@ export function PostVibeTab() {
     : [];
 
   useEffect(() => {
-    setSelectedHit(null);
-    setGeocodeError(null);
     if (!searchQuery.trim()) {
-      setGeocodeHits([]);
+      setSelectedHit(null);
+    } else if (
+      selectedHit &&
+      searchQuery.trim() !== selectedHit.formattedAddress.trim()
+    ) {
+      setSelectedHit(null);
+    }
+  }, [searchQuery, selectedHit]);
+
+  useEffect(() => {
+    setGeocodeError(null);
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      setPredictions([]);
       return;
     }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
-      setGeocodeLoading(true);
+      setPlacesLoading(true);
       try {
-        const hits = await geocodeAddress(searchQuery);
-        setGeocodeHits(hits.slice(0, 5));
+        const list = await fetchPlacePredictions(searchQuery);
+        setPredictions(list);
         setGeocodeError(null);
       } catch (e) {
-        setGeocodeHits([]);
-        setGeocodeError(e instanceof Error ? e.message : 'Could not look up that address');
+        setPredictions([]);
+        setGeocodeError(e instanceof Error ? e.message : 'Could not search places');
       } finally {
-        setGeocodeLoading(false);
+        setPlacesLoading(false);
       }
     }, DEBOUNCE_MS);
     return () => {
@@ -54,10 +70,20 @@ export function PostVibeTab() {
     };
   }, [searchQuery]);
 
-  const handleSelectGeocode = (hit: GeocodeHit) => {
-    setSelectedHit(hit);
-    setSearchQuery(hit.formattedAddress);
+  const handleSelectPrediction = async (p: PlacePrediction) => {
     setShowResults(false);
+    setGeocodeError(null);
+    setPlacesLoading(true);
+    try {
+      const hit = await resolvePlaceById(p.placeId);
+      setSelectedHit(hit);
+      setSearchQuery(hit.formattedAddress || p.description);
+      setPredictions([]);
+    } catch (e) {
+      setGeocodeError(e instanceof Error ? e.message : 'Could not load place');
+    } finally {
+      setPlacesLoading(false);
+    }
   };
 
   const handleSelectMock = (label: string, place: (typeof MOCK_PLACES)[0]) => {
@@ -73,16 +99,22 @@ export function PostVibeTab() {
   };
 
   const resolveSubmitHit = useCallback(async (): Promise<GeocodeHit | null> => {
-    if (selectedHit && selectedHit.formattedAddress === searchQuery.trim()) {
+    if (selectedHit && searchQuery.trim() === selectedHit.formattedAddress.trim()) {
       return selectedHit;
     }
     try {
+      const list = await fetchPlacePredictions(searchQuery);
+      if (list.length > 0) {
+        const hit = await resolvePlaceById(list[0].placeId);
+        setSelectedHit(hit);
+        return hit;
+      }
       const hits = await geocodeAddress(searchQuery);
       const hit = hits[0];
       if (hit) setSelectedHit(hit);
       return hit ?? null;
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Geocoding failed');
+      toast.error(e instanceof Error ? e.message : 'Could not resolve place');
       return null;
     }
   }, [selectedHit, searchQuery]);
@@ -110,7 +142,7 @@ export function PostVibeTab() {
     }
     setSearchQuery('');
     setSelectedHit(null);
-    setGeocodeHits([]);
+    setPredictions([]);
     setCategory(null);
     setVibe(null);
     setSelectedTags([]);
@@ -121,7 +153,8 @@ export function PostVibeTab() {
     'airbnb',
     'campus',
     'parking',
-    'work',
+    'office',
+    'cafe',
     'transit',
     'street',
     'other',
@@ -141,8 +174,10 @@ export function PostVibeTab() {
           ? ['clean-safe', 'harassment', 'poor-lighting', 'sketchy-people']
           : category === 'parking'
             ? ['break-in', 'theft', 'poor-lighting', 'clean-safe']
-            : category === 'work'
+            : category === 'office'
               ? ['clean-safe', 'theft', 'harassment', 'noise', 'sketchy-people']
+              : category === 'cafe'
+                ? ['clean-safe', 'noise', 'theft', 'harassment', 'sketchy-people', 'scam']
               : category === 'transit'
                 ? ['harassment', 'creepy-vibes', 'sketchy-people', 'poor-lighting', 'clean-safe']
                 : category === 'street'
@@ -168,20 +203,22 @@ export function PostVibeTab() {
                     ];
 
   const listOpen =
-    showResults && searchQuery.trim().length > 0 && (mockMatches.length > 0 || geocodeHits.length > 0 || geocodeLoading);
+    showResults &&
+    searchQuery.trim().length > 0 &&
+    (mockMatches.length > 0 || predictions.length > 0 || placesLoading);
 
   return (
     <div className="h-full overflow-y-auto bg-background p-6">
       <div className="max-w-2xl mx-auto space-y-6">
         <h1 className="text-foreground font-semibold text-2xl">Drop the tea on a spot ☕</h1>
         <p className="text-sm text-gray-600">
-          Address search uses secure server-side map config.
+          Search by keywords (café, station, neighborhood) — like Google Maps. Uses Places Autocomplete on the server.
         </p>
 
         <div className="relative">
           <input
             type="text"
-            placeholder="Enter address..."
+            placeholder="Search place or address (keywords OK)..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -201,8 +238,8 @@ export function PostVibeTab() {
                 className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl overflow-hidden z-[9999] max-h-72 overflow-y-auto"
                 style={{ boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.1)' }}
               >
-                {geocodeLoading && (
-                  <div className="px-4 py-3 text-sm text-gray-500">Looking up address…</div>
+                {placesLoading && (
+                  <div className="px-4 py-3 text-sm text-gray-500">Searching places…</div>
                 )}
                 {mockMatches.map((place) => (
                   <button
@@ -214,13 +251,21 @@ export function PostVibeTab() {
                     <span className="block text-xs text-gray-500">Demo · uses saved coordinates</span>
                   </button>
                 ))}
-                {geocodeHits.map((hit, i) => (
+                {predictions.map((p) => (
                   <button
-                    key={`g-${i}-${hit.formattedAddress}`}
-                    onClick={() => handleSelectGeocode(hit)}
+                    key={p.placeId}
+                    type="button"
+                    onClick={() => void handleSelectPrediction(p)}
                     className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 text-sm"
                   >
-                    {hit.formattedAddress}
+                    <span className="font-medium text-gray-900 block">
+                      {p.mainText ?? p.description.split(',')[0]}
+                    </span>
+                    {(p.secondaryText || p.description) && (
+                      <span className="text-xs text-gray-500 block truncate">
+                        {p.secondaryText ?? p.description}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

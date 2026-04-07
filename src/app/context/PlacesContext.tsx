@@ -12,11 +12,6 @@ import type { VibeReport } from '../data/vibeReport';
 import { reportToMapPlace } from '../data/vibeReport';
 import { createReport, fetchReports } from '../lib/reportsApi';
 
-export type ExploreFilters = {
-  category: string;
-  recency: string;
-};
-
 export type SubmitReportPayload = {
   formattedAddress: string;
   lat: number;
@@ -28,12 +23,10 @@ export type SubmitReportPayload = {
 };
 
 type PlacesContextValue = {
-  /** Raw reports from KV (after server-side filters) */
+  /** Raw reports from KV */
   reports: VibeReport[];
   /** Markers for the map */
   places: Place[];
-  filters: ExploreFilters;
-  setFilters: (patch: Partial<ExploreFilters>) => void;
   loading: boolean;
   loadError: string | null;
   refetch: () => Promise<void>;
@@ -44,24 +37,13 @@ const PlacesContext = createContext<PlacesContextValue | null>(null);
 
 export function PlacesProvider({ children }: { children: ReactNode }) {
   const [reports, setReports] = useState<VibeReport[]>([]);
-  const [filters, setFiltersState] = useState<ExploreFilters>({
-    category: 'all',
-    recency: 'all',
-  });
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  const setFilters = useCallback((patch: Partial<ExploreFilters>) => {
-    setFiltersState((f) => ({ ...f, ...patch }));
-  }, []);
 
   const refetch = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchReports({
-        category: filters.category,
-        recency: filters.recency,
-      });
+      const data = await fetchReports({});
       setReports(data);
       setLoadError(null);
     } catch (e) {
@@ -70,7 +52,7 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [filters.category, filters.recency]);
+  }, []);
 
   useEffect(() => {
     void refetch();
@@ -97,14 +79,12 @@ export function PlacesProvider({ children }: { children: ReactNode }) {
     () => ({
       reports,
       places,
-      filters,
-      setFilters,
       loading,
       loadError,
       refetch,
       submitReport,
     }),
-    [reports, places, filters, setFilters, loading, loadError, refetch, submitReport]
+    [reports, places, loading, loadError, refetch, submitReport]
   );
 
   return <PlacesContext.Provider value={value}>{children}</PlacesContext.Provider>;

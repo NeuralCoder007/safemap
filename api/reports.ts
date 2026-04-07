@@ -11,7 +11,8 @@ const PLACE_TYPES = new Set([
   'airbnb',
   'campus',
   'transit',
-  'work',
+  'office',
+  'cafe',
   'other',
 ]);
 

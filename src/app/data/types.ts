@@ -1,4 +1,13 @@
-export type PlaceType = 'parking' | 'street' | 'apartment' | 'airbnb' | 'campus' | 'transit' | 'work' | 'other';
+export type PlaceType =
+  | 'parking'
+  | 'street'
+  | 'apartment'
+  | 'airbnb'
+  | 'campus'
+  | 'transit'
+  | 'office'
+  | 'cafe'
+  | 'other';
 
 export type VibeTag =
   | 'break-in'

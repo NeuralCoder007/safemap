@@ -20,7 +20,8 @@ export const PLACE_TYPE_INFO: Record<PlaceType, { label: string; emoji: string }
   airbnb: { label: 'Airbnb', emoji: '🏠' },
   campus: { label: 'Campus', emoji: '🎓' },
   transit: { label: 'Transit', emoji: '🚇' },
-  work: { label: 'Work / Cafe', emoji: '💻' },
+  office: { label: 'Office', emoji: '💼' },
+  cafe: { label: 'Café', emoji: '☕' },
   other: { label: 'Other', emoji: '📍' },
 };
 

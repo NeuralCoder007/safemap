@@ -6,6 +6,11 @@ export type ListFilters = {
   recency?: string;
 };
 
+function normalizeCategory(category: string): PlaceType {
+  if (category === 'work') return 'office';
+  return category as PlaceType;
+}
+
 export async function fetchReports(filters: ListFilters): Promise<VibeReport[]> {
   const qs = new URLSearchParams();
   if (filters.category && filters.category !== 'all') {
@@ -19,7 +24,11 @@ export async function fetchReports(filters: ListFilters): Promise<VibeReport[]> 
     const text = await res.text();
     throw new Error(text || res.statusText);
   }
-  return res.json() as Promise<VibeReport[]>;
+  const rows = (await res.json()) as VibeReport[];
+  return rows.map((r) => ({
+    ...r,
+    category: normalizeCategory(r.category as unknown as string),
+  }));
 }
 
 export type CreateReportBody = {
@@ -47,5 +56,9 @@ export async function createReport(body: CreateReportBody): Promise<VibeReport> 
     }
     throw new Error(msg);
   }
-  return res.json() as Promise<VibeReport>;
+  const r = (await res.json()) as VibeReport;
+  return {
+    ...r,
+    category: normalizeCategory(r.category as unknown as string),
+  };
 }
