@@ -286,12 +286,13 @@ export function PostVibeTab() {
 
         <div>
           <h2 className="text-foreground font-medium text-lg mb-4">Pick a category</h2>
-          <div className="flex gap-4 overflow-x-auto pb-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-x-3 gap-y-5">
             {categories.map((cat) => (
               <button
                 key={cat}
+                type="button"
                 onClick={() => setCategory(cat)}
-                className="flex-shrink-0 flex flex-col items-center gap-2"
+                className="flex flex-col items-center gap-2 w-full max-w-[5.5rem] mx-auto"
               >
                 <div
                   className={`w-20 h-20 rounded-full text-3xl flex items-center justify-center transition-all ${
