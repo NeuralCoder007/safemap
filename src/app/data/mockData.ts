@@ -1,6 +1,11 @@
 import { Place, Report, Vibe, VibeTag, PlaceType } from './types';
 
-export { VIBE_TAG_INFO, getVibeTagInfo, normalizeReportTags } from './vibeTagUtils';
+export {
+  VIBE_TAG_INFO,
+  getVibeTagInfo,
+  normalizeDisplayTags,
+  normalizeReportTags,
+} from './vibeTagUtils';
 
 export const PLACE_TYPE_INFO: Record<PlaceType, { label: string; emoji: string }> = {
   parking: { label: 'Parking', emoji: '🅿️' },

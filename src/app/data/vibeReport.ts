@@ -1,6 +1,6 @@
-import type { Place, PlaceType, Vibe, VibeTag } from './types';
+import type { Place, PlaceType, Vibe } from './types';
 import { formatDistanceToNow } from 'date-fns';
-import { normalizeReportTags } from './vibeTagUtils';
+import { normalizeDisplayTags } from './vibeTagUtils';
 
 /** Mirrors `StoredVibeReport` returned by `GET /api/reports`. */
 export type VibeReport = {
@@ -9,13 +9,13 @@ export type VibeReport = {
   lng: number;
   category: PlaceType;
   vibe: Vibe;
-  tags: VibeTag[];
+  tags: string[];
   recency: string;
   label?: string;
 };
 
 export function reportToMapPlace(r: VibeReport): Place {
-  const tags = normalizeReportTags(r.tags as unknown as string[]);
+  const tags = normalizeDisplayTags(r.tags as unknown as string[]);
   const vibeScore = r.vibe === 'safe' ? 100 : r.vibe === 'sketchy' ? 50 : 0;
   let relative: string;
   try {

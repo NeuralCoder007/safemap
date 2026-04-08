@@ -32,7 +32,7 @@ export interface Place {
   type: PlaceType;
   vibe: Vibe;
   vibeScore: number; // Percentage 0-100
-  topTags: VibeTag[];
+  topTags: string[];
   reportCount: number;
   confidence: 'low' | 'medium' | 'high';
   lastChecked?: string; // Recency stamp
@@ -41,7 +41,7 @@ export interface Place {
 export interface Report {
   id: string;
   placeId: string;
-  tags: VibeTag[];
+  tags: string[];
   vibe: Vibe;
   note?: string; // optional short note
   isVerified: boolean;

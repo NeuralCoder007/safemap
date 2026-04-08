@@ -19,31 +19,19 @@ const PLACE_TYPES = new Set([
 
 const VIBES = new Set(['unsafe', 'sketchy', 'safe']);
 
-const ALLOWED_TAGS = new Set([
-  'break-in',
-  'theft',
-  'harassment',
-  'noise',
-  'unsafe-night',
-  'poor-lighting',
-  'scam',
-  'clean-safe',
-  'suspicious-people',
-]);
-
 const TAG_ALIASES: Record<string, string> = {
   'creepy-vibes': 'suspicious-people',
   'sketchy-people': 'suspicious-people',
 };
 
-/** Map legacy ids to canonical; drop unknown; dedupe */
+/** Map legacy ids to canonical and dedupe; keep unknown tags for display */
 function normalizeStoredTags(raw: string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const item of raw) {
     const s = String(item).trim();
+    if (!s) continue;
     const mapped = TAG_ALIASES[s] ?? s;
-    if (!ALLOWED_TAGS.has(mapped)) continue;
     if (seen.has(mapped)) continue;
     seen.add(mapped);
     out.push(mapped);

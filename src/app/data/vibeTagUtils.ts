@@ -62,6 +62,22 @@ export function normalizeReportTags(tags: string[]): VibeTag[] {
   return out;
 }
 
+/** Dedupe while keeping unknown tags for display (aliases are still normalized) */
+export function normalizeDisplayTags(tags: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of tags) {
+    const t = String(raw).trim();
+    if (!t) continue;
+    const canonical = normalizeVibeTag(t);
+    const tag = canonical ?? t;
+    if (seen.has(tag)) continue;
+    seen.add(tag);
+    out.push(tag);
+  }
+  return out;
+}
+
 /** Safe for UI: handles legacy keys and odd stored values */
 export function getVibeTagInfo(raw: string): { label: string; emoji: string } {
   const v = normalizeVibeTag(raw);

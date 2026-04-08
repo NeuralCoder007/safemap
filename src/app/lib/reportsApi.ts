@@ -1,6 +1,6 @@
 import type { VibeReport } from '../data/vibeReport';
 import type { PlaceType, Vibe, VibeTag } from '../data/types';
-import { normalizeReportTags } from '../data/vibeTagUtils';
+import { normalizeDisplayTags, normalizeReportTags } from '../data/vibeTagUtils';
 import { friendlyLoadError, friendlySaveError } from './userFacing';
 
 export type ListFilters = {
@@ -8,9 +8,23 @@ export type ListFilters = {
   recency?: string;
 };
 
+const KNOWN_CATEGORIES = new Set<PlaceType>([
+  'parking',
+  'street',
+  'apartment',
+  'airbnb',
+  'campus',
+  'transit',
+  'office',
+  'cafe',
+  'library',
+  'other',
+]);
+
 function normalizeCategory(category: string): PlaceType {
   if (category === 'work') return 'office';
-  return category as PlaceType;
+  if (KNOWN_CATEGORIES.has(category as PlaceType)) return category as PlaceType;
+  return 'other';
 }
 
 export async function fetchReports(filters: ListFilters): Promise<VibeReport[]> {
@@ -30,7 +44,7 @@ export async function fetchReports(filters: ListFilters): Promise<VibeReport[]> 
   return rows.map((r) => ({
     ...r,
     category: normalizeCategory(r.category as unknown as string),
-    tags: normalizeReportTags(r.tags as unknown as string[]),
+    tags: normalizeDisplayTags(r.tags as unknown as string[]),
   }));
 }
 
@@ -67,6 +81,6 @@ export async function createReport(body: CreateReportBody): Promise<VibeReport> 
   return {
     ...r,
     category: normalizeCategory(r.category as unknown as string),
-    tags: normalizeReportTags(r.tags as unknown as string[]),
+    tags: normalizeDisplayTags(r.tags as unknown as string[]),
   };
 }
